@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)">
+<meta name="generator" content="Hexo 5.4.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" integrity="sha256-mUZM63G8m73Mcidfrv5E+Y61y7a12O5mW4ezU3bxqW4=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.8.0","exturl":false,"sidebar":{"position":"always","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+<meta name="description" content="有时会遇到这么一种情况，服务器的22端口被限制了，无法ssh登录到设备。或者临时需要在一台没有安装xshell、secureCRT等这些SSH客户端。那么就可以通过Web访问服务器的终端。本文介绍两种工具：cockpit，shellinbox。 cockpitRunning Cockpit — Cockpit Project (cockpit-project.org) 安装1yum install">
+<meta property="og:type" content="article">
+<meta property="og:title" content="通过Web访问浏览器终端">
+<meta property="og:url" content="http://example.com/2021/10/07/%E9%80%9A%E8%BF%87Web%E8%AE%BF%E9%97%AE%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BB%88%E7%AB%AF/index.html">
+<meta property="og:site_name" content="Shawn&#39;s Blog">
+<meta property="og:description" content="有时会遇到这么一种情况，服务器的22端口被限制了，无法ssh登录到设备。或者临时需要在一台没有安装xshell、secureCRT等这些SSH客户端。那么就可以通过Web访问服务器的终端。本文介绍两种工具：cockpit，shellinbox。 cockpitRunning Cockpit — Cockpit Project (cockpit-project.org) 安装1yum install">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-10-07T09:36:09.733Z">
+<meta property="article:modified_time" content="2021-10-07T09:36:09.733Z">
+<meta property="article:author" content="Shawn">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2021/10/07/%E9%80%9A%E8%BF%87Web%E8%AE%BF%E9%97%AE%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BB%88%E7%AB%AF/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://example.com/2021/10/07/%E9%80%9A%E8%BF%87Web%E8%AE%BF%E9%97%AE%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BB%88%E7%AB%AF/","path":"2021/10/07/通过Web访问服务器终端/","title":"通过Web访问浏览器终端"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>通过Web访问浏览器终端 | Shawn's Blog</title>
+  
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Shawn's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#cockpit"><span class="nav-number">1.</span> <span class="nav-text">cockpit</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E9%98%B2%E7%81%AB%E5%A2%99"><span class="nav-number">1.2.</span> <span class="nav-text">配置防火墙</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8"><span class="nav-number">1.3.</span> <span class="nav-text">启动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8nginx%E4%BB%A3%E7%90%86"><span class="nav-number">1.4.</span> <span class="nav-text">使用nginx代理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#shellinabox"><span class="nav-number">2.</span> <span class="nav-text">shellinabox</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85shellinabox"><span class="nav-number">2.1.</span> <span class="nav-text">安装shellinabox</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8shellinabox"><span class="nav-number">2.2.</span> <span class="nav-text">启动shellinabox</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8nginx%E4%BB%A3%E7%90%86-1"><span class="nav-number">2.3.</span> <span class="nav-text">使用nginx代理</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Shawn</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/07/%E9%80%9A%E8%BF%87Web%E8%AE%BF%E9%97%AE%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BB%88%E7%AB%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Shawn">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Shawn's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          通过Web访问浏览器终端
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-10-07 17:36:09" itemprop="dateCreated datePublished" datetime="2021-10-07T17:36:09+08:00">2021-10-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>有时会遇到这么一种情况，服务器的22端口被限制了，无法ssh登录到设备。或者临时需要在一台没有安装xshell、secureCRT等这些SSH客户端。那么就可以通过Web访问服务器的终端。本文介绍两种工具：cockpit，shellinbox。</p>
+<h2 id="cockpit"><a href="#cockpit" class="headerlink" title="cockpit"></a>cockpit</h2><p><a target="_blank" rel="noopener" href="https://cockpit-project.org/running.html">Running Cockpit — Cockpit Project (cockpit-project.org)</a></p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install cockpit -y</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置防火墙"><a href="#配置防火墙" class="headerlink" title="配置防火墙"></a>配置防火墙</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --add-service=cockpit --permanent</span><br><span class="line">firewall-cmd --reload</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start cockpit.socket</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="使用nginx代理"><a href="#使用nginx代理" class="headerlink" title="使用nginx代理"></a>使用nginx代理</h3><p>vim /etc/cockpit/cockpit.conf</p>
+<p>允许跨域，关闭ssl，设置根路径</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[WebService]</span><br><span class="line">Origins = https://vm2 https://vm2:9090 wss://vm wss://vm:9090</span><br><span class="line">ProtocolHeader = X-Forwarded-Proto</span><br><span class="line">AllowUnencrypted = <span class="literal">true</span></span><br><span class="line">UrlRoot = /cockpit0/</span><br></pre></td></tr></table></figure>
+
+
+
+<p>vim  vim /etc/systemd/system/cockpit.socket</p>
+<p>因为关闭了ssl，所以为了安全，改成只监听本地端口</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[Socket]</span><br><span class="line">ListenStream=127.0.0.1:9090</span><br></pre></td></tr></table></figure>
+<p>修改配置后重启cockpit</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart cockpit</span><br></pre></td></tr></table></figure>
+
+
+
+<p>修改nginx配置，可通过 <a target="_blank" rel="noopener" href="https://ip/cockpi0/">https://ip/cockpi0/</a> 访问 cockpit</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">location</span><span class="regexp"> ^~/cockpit0/</span> &#123;</span><br><span class="line">    <span class="attribute">proxy_pass</span> http://localhost:9090/cockpit0/;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> X-Forwarded-Proto $scheme;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> Host $host;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> Upgrade $http_upgrade;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> Connection upgrade;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> Accept-Encoding gzip;</span><br><span class="line">    <span class="attribute">proxy_http_version</span> <span class="number">1</span>.<span class="number">1</span>;</span><br><span class="line">    <span class="attribute">proxy_buffering</span> <span class="literal">off</span>;</span><br><span class="line">    <span class="attribute">gzip</span> <span class="literal">off</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="shellinabox"><a href="#shellinabox" class="headerlink" title="shellinabox"></a>shellinabox</h2><p>说明：通过web访问服务器命令行。</p>
+<h3 id="安装shellinabox"><a href="#安装shellinabox" class="headerlink" title="安装shellinabox"></a>安装shellinabox</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install shellinabox</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动shellinabox"><a href="#启动shellinabox" class="headerlink" title="启动shellinabox"></a>启动shellinabox</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start shellinaboxd.service</span><br></pre></td></tr></table></figure>
+
+<p>访问 <a target="_blank" rel="noopener" href="https://ip:4200/">https://ip:4200</a> 登录使用</p>
+<p>注意，默认不能直接使用root登录。</p>
+<h3 id="使用nginx代理-1"><a href="#使用nginx代理-1" class="headerlink" title="使用nginx代理"></a>使用nginx代理</h3><ol>
+<li>shellinabox启动参数，禁用ssl，方便nginx代理，改成只监听localhost</li>
+</ol>
+<p>vim /etc/sysconfig/shellinabox</p>
+<p>修改OPTS为如下， 加上 –localhost-only -t</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OPTS=<span class="string">&quot;--disable-ssl-menu --localhost-only -t -s /:LOGIN&quot;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>nginx配置修改</li>
+</ol>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">location</span><span class="regexp"> ^~/shellinabox/</span> &#123;</span><br><span class="line">       <span class="attribute">proxy_pass</span> http://127.0.0.1:4200/;</span><br><span class="line">       <span class="attribute">proxy_redirect</span> default;</span><br><span class="line"></span><br><span class="line">       <span class="attribute">proxy_set_header</span> Host $host;</span><br><span class="line">       <span class="attribute">proxy_set_header</span> X-Real-IP $remote_addr;</span><br><span class="line">       <span class="attribute">proxy_set_header</span> X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line"></span><br><span class="line">       <span class="attribute">client_max_body_size</span> <span class="number">10m</span>;</span><br><span class="line">       <span class="attribute">client_body_buffer_size</span> <span class="number">128k</span>;</span><br><span class="line"></span><br><span class="line">       <span class="attribute">proxy_connect_timeout</span> <span class="number">90</span>;</span><br><span class="line">       <span class="attribute">proxy_send_timeout</span> <span class="number">90</span>;</span><br><span class="line">       <span class="attribute">proxy_read_timeout</span> <span class="number">90</span>;</span><br><span class="line"></span><br><span class="line">       <span class="attribute">proxy_buffer_size</span> <span class="number">4k</span>;</span><br><span class="line">       <span class="attribute">proxy_buffers</span> <span class="number">4</span> <span class="number">32k</span>;</span><br><span class="line">       <span class="attribute">proxy_busy_buffers_size</span> <span class="number">64k</span>;</span><br><span class="line">       <span class="attribute">proxy_temp_file_write_size</span> <span class="number">64k</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/10/07/hello-world/" rel="next" title="Hello World">
+                  Hello World <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Shawn</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
